@@ -11,6 +11,27 @@ KTH Royal Institute of Technology, Stockholm
 
 layout: false
 
+## About me
+
+### Programmer/method developer in theoretical chemistry at KTH Stockholm
+
+- Department of Theoretical Chemistry and Biology
+- GPUnCH http://gpunch.org
+- Dalton http://daltonprogram.org
+- DIRAC http://diracprogram.org
+- OpenRSP http://openrsp.org
+- XCint http://rbast.github.io/xcint/
+
+### Application expert at PDC Stockholm
+
+- User and application support
+- Code optimization
+- Time-allocation database plumbing
+- Documentation framework
+- Teaching
+
+---
+
 .left-column[
 # Outline
 ]
@@ -1269,56 +1290,133 @@ template: inverse
 
 ---
 
-## Performance analysis
+## Scientist facing performance
 
-- CrayPAT
-- Allinea Performance Reports
-- Vampir
-- Paraver
+<img src="{{ base }}/img/beskow.png" style="width: 600px;"/>
 
-## Debugging
+## Aim: utilize resources efficiently
 
-- DDT
-- TotalView
-- Cray ATP
-- gdb
+- Users: how to make the most of allocated CPU time
+- Sites: how to make the most of available CPU time
 
 ---
 
-## CrayPAT
+## Performance analysis
 
-```
- Samp%  | Samp  | Imb.  |  Imb.  |Group
-        |       | Samp  | Samp%  | Function
-        |       |       |        |  PE=HIDE
+- Programming
 
- 100.0% |   6.0 |    -- |     -- |Total
-|-----------------------------------------------------
-|  87.5% |   5.2 |    -- |     -- |MPI
-||----------------------------------------------------
-||  72.9% |   4.4 |   0.6 |  14.3% |MPI_SENDRECV
-||  14.6% |   0.9 |   0.1 |  14.3% |mpi_finalize
-||====================================================
-|  10.4% |   0.6 |    -- |     -- |ETC
-||----------------------------------------------------
-||   4.2% |   0.2 |   1.8 | 100.0% |png_write_chunk
-||   2.1% |   0.1 |   0.9 | 100.0% |inflate
-||   2.1% |   0.1 |   0.9 | 100.0% |deflateSetDictionary
-||   2.1% |   0.1 |   0.9 | 100.0% |deflateEnd
-||====================================================
-|   2.1% |   0.1 |   0.9 | 100.0% |IO
-||----------------------------------------------------
-|   2.1% |   0.1 |   0.9 | 100.0% | write
-|=====================================================
-```
+- Compilation parameters
+    - "Right" compiler
+    - Compiler flags
+    - Instruction set
+    - Optimized libraries
 
-- http://docs.cray.com/books/S-2315-52/html-S-2315-52/z1055157958smg.html
+- Runtime parameters
+    - "Right" machine
+    - Memory
+    - I/O
+    - Parallelization
+    - Adapting parameters to system size
+
+- With relatively easy steps analyze whether application runs efficiently
+
+---
+
+## Amdahl
+
+<img src="{{ base }}/img/amdahl.png" style="width: 700px;"/>
+
+---
+
+## Profiling
+
+<img src="{{ base }}/img/profile.png" style="width: 200px;"/>
+
+- Where does the program spend most time?
+- Dynamic program analysis (runtime)
+- Statistical sampling or event-based
+- Profiling perturbs the calculation
 
 ---
 
 ## Allinea Performance Reports
 
-![]({{ base }}/img/apr-example-summary.png)
+- Available on PDC resources
+- Little overhead
+- On Cray requires relinking the binary
+
+```shell
+$ module add allinea-reports
+$ perf-report aprun -n 288 ./binary.x
+```
+
+- Produces one-page summary (html and txt)
+
+### Example: MPI-bound
+
+- [24 MPI procs](24.html)
+- [48 MPI procs](48.html)
+- [96 MPI procs](96.html)
+
+### Example: I/O-bound
+
+- [288 MPI procs](io-bound.html)
+
+---
+
+## CrayPAT
+
+- Available on Beskow
+- Normal compilation and run
+
+```shell
+$ make                             # build application
+$ ./binary.x > output              # run the executable
+```
+
+- Instrumented compilation and run
+
+```shell
+$ module load perftools
+$ make                             # build application
+$ pat_build binary.x               # instrument the application
+$ ./binary.x+pat > output          # run the instrumented executable
+$ pat_report data.xf > results.txt # view results
+```
+
+---
+
+```
+ Samp%  |  Samp  | Imb.  |  Imb.  |Group
+        |        | Samp  | Samp%  | Function
+        |        |       |        |  Source
+        |        |       |        |   Line
+        |        |       |        |    PE=HIDE
+
+ 100.0% | 1546.0 |    -- |     -- |Total
+|--------------------------------------------------------------------
+|  91.9% | 1420.6 |    -- |     -- |USER
+||-------------------------------------------------------------------
+*||  42.0% |  648.7 | 181.3 |  22.8% |MPIDI_CH3I_Progress
+*||   8.6% |  132.3 |  49.7 |  28.5% |MPID_nem_network_poll
+*||   6.0% |   93.2 |  40.8 |  31.8% |MPID_nem_gni_poll_no_op
+||   4.1% |   63.6 |    -- |     -- |fckou1_
+3|        |        |       |        | soft-2/src/abacus/her2out.F
+||   3.8% |   58.0 |    -- |     -- |c1driv_
+3|        |        |       |        | soft-2/src/abacus/her2el1.F
+4|   3.7% |   57.8 |  49.2 |  48.0% |  line.126
+||   3.1% |   48.2 |    -- |     -- |c2driv_
+3|        |        |       |        | soft-2/src/abacus/her2el2.F
+4|   3.1% |   47.8 |  15.2 |  25.1% |  line.70
+||   3.1% |   47.6 |  23.4 |  34.4% |MPIDU_Sched_are_pending
+||   2.9% |   45.5 |  29.5 |  41.0% |daxpy_k
+||   2.6% |   39.6 |    -- |     -- |heri_
+3|        |        |       |        | soft-2/src/abacus/her2her.F
+||||-----------------------------------------------------------------
+4|||   1.6% |   24.7 |  27.3 |  54.8% |line.649
+4|||   1.0% |   14.8 |  13.2 |  49.4% |line.653
+||||=================================================================
+```
 
 ---
 
@@ -1337,6 +1435,36 @@ template: inverse
 
 - Example image courtesy Xavi Aguilar
 - http://www.bsc.es/computer-sciences/performance-tools/paraver/
+
+---
+
+## Conclusions
+
+### Performance is typically not portable
+
+### Typical problems
+
+- Parallel region too small
+- Serialization of parallel tasks
+- I/O heavy code
+- Communication overhead
+- Work load imbalance
+- Resource imbalance
+- Memory-bound code
+- Sub-optimal use of libraries
+- System size too small
+- Wrong code
+
+---
+
+## Conclusions
+
+### Advice
+
+- Profile first, optimize later
+- Trust but verify
+- Use existing performance analysis tools
+- Use SNIC application experts to improve your code/throughput
 
 ---
 
