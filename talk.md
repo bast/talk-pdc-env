@@ -235,7 +235,7 @@ bast@beskow-login2:~$ _
 - Calculations are configured and run using text files
 - Good for working over network
 - Good for reproducibility
-- Good for unsupervised workflows
+- Good for unsupervised work-flows
 
 ---
 
@@ -1119,7 +1119,7 @@ aprun -n 64 ./binary.x > my_output 2>&1
 export OMP_NUM_THREADS=8
 
 cd $SLURM_SUBMIT_DIR
-aprun -n 1024 -N 4 -d 8 -cc none ./myexe > my_output 2>&1
+aprun -n 1024 -N 4 -d 8 -cc none ./binary.x > my_output 2>&1
 ```
 
 - In this case the job script is a Bash script but it can be Python or Perl instead
