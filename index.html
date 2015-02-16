@@ -1301,19 +1301,18 @@ salloc: Job allocation 21223 has been revoked.
 ## Working with an interactive node
 
 - This runs on the login node:
-
 ```shell
 $ salloc
 $ ./program
 ```
 
 - This runs on a compute node node:
-
 ```shell
 $ salloc
 $ aprun -n 32 ./program
 ```
 
+- With ``srun`` you basically ``salloc`` and ``aprun`` in one.
 - You cannot (easily) log into a compute node directly.
 - Note that compute nodes have Haswell and login nodes have Sandy Bridge.
 - If you have a clever configure script which detects the processor,
