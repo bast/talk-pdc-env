@@ -38,7 +38,7 @@ layout: false
 
 .right-column[
 - Different types of nodes
-- System access
+- System access via Kerberos and SSH
 - Unix shell (bash)
 - File systems, permissions, and transfer
 - Parallel computing and parallel programming
@@ -70,7 +70,7 @@ layout: false
 
 template: inverse
 
-# System access
+# System access via Kerberos and SSH
 
 ---
 
@@ -104,13 +104,8 @@ template: inverse
 
 ---
 
-## Kerberos
+## Kerberos on Linux
 
-.left-column[
-## Linux
-]
-
-.right-column[
 - Installation: https://www.pdc.kth.se/resources/software/login-1/linux/
 
 - Login
@@ -129,7 +124,6 @@ ssh user@machine.pdc.kth.se
 kinit user
 ssh user@machine.pdc.kth.se
 ```
-]
 
 ---
 
@@ -159,46 +153,28 @@ Host *
 
 ---
 
-## Kerberos
+## Kerberos on Windows
 
-.left-column[
-## Windows
-]
-
-.right-column[
 - PuTTY (only PuTTY downloaded from this link works at PDC)
   https://www.pdc.kth.se/resources/software/login-1/windows/putty
 - SecureCRT
   https://www.pdc.kth.se/resources/software/login-1/windows/securecrt
 - We prefer PuTTY because we prefer to pay less license fees
 - Another option is CygWin
-]
 
 ---
 
 ## Kerberized PuTTY
 
-.left-column[
-## Windows
-]
-
-.right-column[
 ![]({{ base }}/img/putty-kerberos.png)
-]
 
 ---
 
-## Kerberos
+## Kerberos on Mac OS X
 
-.left-column[
-## Mac OS X
-]
-
-.right-column[
 - Mac OS X Lion 10.7.2 and above come with Heimdal and kerberized SSH
 - Mac OS X Snow Leopard comes with MIT Kerberos and kerberized SSH
 - For configuration of see https://www.pdc.kth.se/resources/software/login-1/macintosh
-]
 
 ---
 
@@ -626,6 +602,8 @@ Ellen     /cfs/klemming/nobackup  # persistent files
           /afs                    # important files, backup
 ```
 
+- Some users try to link /cfs from /afs or /afs from /cfs and expect it to work: not a good idea.
+
 ---
 
 ## File transfer between PDC machines
@@ -1003,6 +981,24 @@ $ mpiicpc  source.cpp
 
 ---
 
+## MPI launchers
+
+- Beskow and Milner
+    - aprun
+
+```shell
+aprun -n 48 ./binary.x > my_output
+```
+
+- Other machines
+    - mpirun or mpiexec
+
+```shell
+mpirun -np 48 ./binary.x > my_output
+```
+
+---
+
 template: inverse
 
 # How to run programs
@@ -1040,24 +1036,6 @@ template: inverse
 
 - Ellen
     - Only interactive
-
----
-
-## MPI launchers
-
-- Beskow and Milner
-    - aprun
-
-```shell
-aprun -n 48 ./my_exe > my_output
-```
-
-- Other machines
-    - mpirun or mpiexec
-
-```shell
-mpirun -np 48 ./my_exe > my_output
-```
 
 ---
 
@@ -1108,9 +1086,9 @@ $ sacctmgr update user <user> set defaultaccount=<alloc> where cluster=beskow
 # number of MPI tasks
 #SBATCH -n 64
 
-# run the executable named my_exe and write the output to my_output
+# run the executable named binary.x and write the output to my_output
 cd $SLURM_SUBMIT_DIR
-aprun -n 64 ./my_exe > my_output 2>&1
+aprun -n 64 ./binary.x > my_output 2>&1
 ```
 
 ---
@@ -1225,6 +1203,20 @@ and **not** from your home directory on `/afs`
 
 ---
 
+## Environment variables forwarding
+
+- By default ``sbatch`` exports all environment variables:
+```shell
+$ sbatch --exports=ALL
+```
+
+- For reproducibility you may want to do this instead:
+```shell
+$ sbatch --exports=NONE
+```
+
+---
+
 template: inverse
 
 # Software development tools and good practices
@@ -1308,7 +1300,7 @@ template: inverse
 - Compilation parameters
     - "Right" compiler
     - Compiler flags
-    - Instruction set
+    - Instruction set (different on login and compute nodes)
     - Optimized libraries
 
 - Runtime parameters
@@ -1498,7 +1490,9 @@ template: inverse
 - If you want the PDC support to inspect some files, make sure that the files are readable.
 - Do not assume that PDC support personnel have admin rights to see all your files or change permissions.
 
-### References
+---
+
+## References
 
 - A. Turner, X. Guo, L. Axner, M. Filipiak, Best Practice Guide - Cray XE/XC (V4.1), 2013 (http://www.prace-ri.eu/Best-Practice-Guide-Cray-XE-XC-HTML).
 - https://www.pdc.kth.se/education/course-resources/introduction-to-cray-xc30-xc40/feb-2015/agenda
