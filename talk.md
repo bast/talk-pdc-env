@@ -1206,12 +1206,12 @@ and **not** from your home directory on `/afs`
 
 - By default ``sbatch`` exports all environment variables:
 ```shell
-$ sbatch --exports=ALL
+$ sbatch --export=ALL
 ```
 
 - For reproducibility you may want to do this instead:
 ```shell
-$ sbatch --exports=NONE
+$ sbatch --export=NONE
 ```
 
 ## Beware the -N
