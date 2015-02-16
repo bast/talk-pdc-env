@@ -1215,6 +1215,18 @@ $ sbatch --exports=ALL
 $ sbatch --exports=NONE
 ```
 
+## Beware the -N
+
+- For ``sbatch`` it is the number of nodes
+```shell
+$ sbatch -N 32
+```
+
+- For ``aprun`` it is the number of MPI tasks per node
+```shell
+$ aprun -N 32
+```
+
 ---
 
 template: inverse
